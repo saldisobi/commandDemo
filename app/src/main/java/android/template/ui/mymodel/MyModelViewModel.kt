@@ -29,22 +29,55 @@ import android.template.data.MyModelRepository
 import android.template.ui.mymodel.MyModelUiState.Error
 import android.template.ui.mymodel.MyModelUiState.Loading
 import android.template.ui.mymodel.MyModelUiState.Success
+import android.util.Log
 import javax.inject.Inject
 
 @HiltViewModel
 class MyModelViewModel @Inject constructor(
     private val myModelRepository: MyModelRepository
-) : ViewModel() {
+) : ViewModel(), CommandReceiver {
 
     val uiState: StateFlow<MyModelUiState> = myModelRepository
         .myModels.map(::Success)
         .catch { Error(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Loading)
 
-    fun addMyModel(name: String) {
+    fun processCommand(command: Command) {
+        command.execute(this)
+    }
+
+    override fun onAddClicked() {
         viewModelScope.launch {
-            myModelRepository.add(name)
+            Log.v(TAG, "add command")
         }
+    }
+
+    override fun onTextUpdate(newText: String) {
+        viewModelScope.launch {
+            Log.v(TAG, "edit command")
+        }
+    }
+
+    override fun onDeleteClicked() {
+        viewModelScope.launch {
+            Log.v(TAG, "delete command")
+        }
+    }
+
+    override fun onListClicked() {
+        viewModelScope.launch {
+            Log.v(TAG, "list command")
+        }
+    }
+
+    override fun onSaveClicked(text: String) {
+        viewModelScope.launch {
+            myModelRepository.add(text)
+        }
+    }
+
+    companion object {
+        const val TAG = "MyTag"
     }
 }
 

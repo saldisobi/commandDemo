@@ -43,9 +43,13 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.*
+import androidx.compose.ui.text.input.DeleteAllCommand
 
 @Composable
-fun MyModelScreen(modifier: Modifier = Modifier, viewModel: MyModelViewModel = hiltViewModel()) {
+fun MyModelCommandScreen(
+    modifier: Modifier = Modifier,
+    viewModel: MyModelViewModel = hiltViewModel()
+) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val items by produceState<MyModelUiState>(
         initialValue = MyModelUiState.Loading,
@@ -57,28 +61,21 @@ fun MyModelScreen(modifier: Modifier = Modifier, viewModel: MyModelViewModel = h
         }
     }
     if (items is MyModelUiState.Success) {
-        MyModelScreen(
+        MyModelCommandScreen(
             items = (items as MyModelUiState.Success).data,
-            onSave = viewModel::onSaveClicked,
-            onAdd = viewModel::onAddClicked,
-            onUpdate = viewModel::onTextUpdate,
-            onDelete = viewModel::onDeleteClicked,
-            onList = viewModel::onListClicked,
             modifier = modifier
-        )
+        ) { command ->
+            viewModel.processCommand(command)
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun MyModelScreen(
+internal fun MyModelCommandScreen(
     items: List<String>,
-    onSave: (name: String) -> Unit,
-    onAdd: () -> Unit,
-    onUpdate: (name: String) -> Unit,
-    onDelete: () -> Unit,
-    onList: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    commandProcessor: (Command) -> Unit
 ) {
     Column(modifier) {
         var nameMyModel by remember { mutableStateOf("Compose") }
@@ -93,7 +90,9 @@ internal fun MyModelScreen(
                 onValueChange = { nameMyModel = it }
             )
 
-            Button(modifier = Modifier.width(96.dp), onClick = { onSave(nameMyModel) }) {
+            Button(
+                modifier = Modifier.width(96.dp),
+                onClick = { commandProcessor(SaveCommand(nameMyModel)) }) {
                 Text("Save")
             }
         }
@@ -107,25 +106,25 @@ internal fun MyModelScreen(
                 Text("Saved item: $it")
 
                 Icon(
-                    modifier = Modifier.clickable { onAdd() },
+                    modifier = Modifier.clickable { commandProcessor(AddCommand()) },
                     imageVector = Icons.Filled.Add,
                     contentDescription = "add"
                 )
 
                 Icon(
-                    modifier = Modifier.clickable { onUpdate(nameMyModel) },
+                    modifier = Modifier.clickable { commandProcessor(TextUpdateCommand(nameMyModel)) },
                     imageVector = Icons.Filled.Edit,
                     contentDescription = "edit"
                 )
 
                 Icon(
-                    modifier = Modifier.clickable { onDelete() },
+                    modifier = Modifier.clickable { commandProcessor(DeleteProductCommand()) },
                     imageVector = Icons.Filled.Delete,
                     contentDescription = "delete"
                 )
 
                 Icon(
-                    modifier = Modifier.clickable { onList() },
+                    modifier = Modifier.clickable { commandProcessor(ListCommand()) },
                     imageVector = Icons.Filled.List,
                     contentDescription = "list"
                 )

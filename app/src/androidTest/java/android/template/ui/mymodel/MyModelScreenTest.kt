@@ -38,7 +38,13 @@ class MyModelScreenTest {
     @Before
     fun setup() {
         composeTestRule.setContent {
-            MyModelScreen(FAKE_DATA, onSave = {})
+            MyModelScreen(
+                FAKE_DATA,
+                onSave = {},
+                onUpdate = {},
+                onDelete = {},
+                onAdd = {},
+                onList = {})
         }
     }
 
