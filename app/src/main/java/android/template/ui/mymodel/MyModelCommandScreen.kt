@@ -63,10 +63,9 @@ fun MyModelCommandScreen(
     if (items is MyModelUiState.Success) {
         MyModelCommandScreen(
             items = (items as MyModelUiState.Success).data,
-            modifier = modifier
-        ) { command ->
-            viewModel.processCommand(command)
-        }
+            modifier = modifier,
+            commandProcessor = viewModel::processCommand
+        )
     }
 }
 

@@ -6,6 +6,9 @@ interface CommandReceiver {
     fun onDeleteClicked()
     fun onListClicked()
     fun onSaveClicked(text: String)
+    fun processCommand(command: Command) {
+        command.execute(this)
+    }
 }
 
 interface Command {

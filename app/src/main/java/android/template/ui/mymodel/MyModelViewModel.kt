@@ -42,10 +42,6 @@ class MyModelViewModel @Inject constructor(
         .catch { Error(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Loading)
 
-    fun processCommand(command: Command) {
-        command.execute(this)
-    }
-
     override fun onAddClicked() {
         viewModelScope.launch {
             Log.v(TAG, "add command")
